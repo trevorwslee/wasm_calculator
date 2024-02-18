@@ -4,15 +4,15 @@
 
 use std::{borrow::Borrow, cell::RefCell, rc::Rc};
 
-use leptos::{logging::log, *};
-use rusty_dumb_tools::{calculator, prelude::*};
+use leptos::*;
+use leptos::logging::log;
 use web_sys::MouseEvent;
+use rusty_dumb_tools::calculator::*;
 
 const ENABLE_LOGGING: bool = false;
 const DISPLAY_LEN: usize = 14;
 
 fn main() {
-    console_error_panic_hook::set_once();
     mount_to_body(move || {
         view! { <App/> }
     });
