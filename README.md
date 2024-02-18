@@ -8,8 +8,8 @@
 
 Here I will assume program development tools, like
 * Of cause, the [Rust](https://www.rust-lang.org/tools/install) programming language itself.
-* The popular [VSCode](https://code.visualstudio.com/download) program development editor / IDE, with the extensions:
-  - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+* The popular [VSCode](https://code.visualstudio.com/download) program development editor / IDE, with the extension 
+  [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 * Preferably the popular source control tool [GIT](https://git-scm.com/downloads).
 
 ## Rust Crates Used
@@ -31,7 +31,7 @@ After installing Trunk, you will also need to add the Rust target `wasm32-unknow
 rustup target add wasm32-unknown-unknown
 ```
 
-## Start with `wasm_calculator` Rust Project
+## Kick-starting `wasm_calculator`
 
 To get kick-started, create a new Rust project `wasm_calculator`, like
 ```
@@ -49,7 +49,7 @@ In VSCode, open and edit `Cargo.toml` adding the necessary dependencies, like
 ...
 [dependencies]
 leptos = { version = "0.6.5", features = ["csr"] }
-rusty_dumb_tools = {version = "0.1.6"}
+rusty_dumb_tools = {version = "0.1.7"}
 ```
 
 Add `index.html`, which is sort of the template for your final WASM 'index.html`
@@ -76,6 +76,8 @@ Say, change `<body>` of `index.html` to
 ```
 
 Notice that the browser page is changed accordingly.
+
+## The basis of `wasm_calculator` 
 
 The initial generate `main.rs` is actually not WASM code to be "mounted" to `<body>`.
 To "mount" some simple WASM code (written in Rust), can change `main.rs` like
@@ -133,7 +135,7 @@ fn App() -> impl IntoView {
   let who = "World"; 
   view! {
     {
-      view ! {
+      view! {
         <div style={format!("color:{}", color)}>Hello, {who}!</div>
       }
     }
@@ -162,7 +164,7 @@ fn App() -> impl IntoView {
   let who = "World"; 
   view! {
     {
-      view ! {
+      view! {
         <div class="test-class">Hello, {who}!</div>
       }
     }
@@ -176,6 +178,182 @@ Note that Leptos will render HTML once only -- like the above `App()` will only 
 
 Therefore, to make it interactive, not only you will need add some interactive HTML elements, like `<button>`, you will also need to make use of "signals" like
 
-First, lets add two `<button>`s and be able to log to the browser's console when any of the button is clicked:
+First, lets add two `<button>`s, and be able to log to the browser's console when any of the button is clicked:
 ```
+use leptos::*;
+use leptos::logging::log;
+use web_sys::MouseEvent;
+...
+fn App() -> impl IntoView {
+  let who = "World"; 
+  let on_clicked = |ev: MouseEvent| {
+    let value = event_target_value(&ev);
+    log!("* clicked value [{}]", value);
+  };
+  view! {
+    {
+      view! {
+        <div class="test-class">Hello, {who}!</div>
+      }
+    }
+    <button on:click=on_clicked value="1">I am 1</button>
+    <button on:click=on_clicked value="2">I am 2</button>
+  }
+}
 ```
+
+Notes:
+* Two more dependencies
+  ```
+    use leptos::logging::log;
+    use web_sys::MouseEvent;
+  ```
+* The closure defined by `on_clicked` will be called when any one of the button is clicked
+  ```
+    <button on:click=on_clicked value="1">I am 1</button>
+    <button on:click=on_clicked value="2">I am 2</button>
+  ```
+  Notice that the two `<button>`s are placed in the same level as the "nested" `view!`
+* Each button is associated with a value (e.g. `value="1"`), and when a button is clicked, the associated value is retrieved and printed to the browser's console like 
+  ```
+    let value = event_target_value(&ev);
+    log!("* clicked value [{}]", value);
+  ``` 
+
+Now, lets make use of "signal" to trigger update of the `<div>` content
+
+```
+fn App() -> impl IntoView {
+  let (clicked_value, set_clicked_value) = create_signal(String::from(""));
+  let on_clicked = move |ev: MouseEvent| {
+    let value = event_target_value(&ev);
+    log!("* clicked value [{}]", value);
+    set_clicked_value.set(value);
+  };
+  view! {
+    {
+      move || view! {
+        <div class="test-class"> {
+          let value = clicked_value.get();
+          format!("Hello, [{}]!", value)
+        } </div>
+      }
+    }
+    <button on:click=on_clicked value="1">I am 1</button>
+    <button on:click=on_clicked value="2">I am 2</button>
+  }
+}
+```
+
+Notes:
+* The "signal" is created like
+  ```
+    let (clicked_value, set_clicked_value) = create_signal(String::from(""));
+  ```
+  - such a "signal" is composed of a "getter" `clicked_value` and a "setter" `set_clicked_value`
+  - the type of the "signal" is `String`, and the "signal" is initialized to the empty `String'
+* The "setter" `set_clicked_value` is called to set new value in the closure defined by `on_click`, which is called when any of the button is clicked
+  ```
+  let on_clicked = move |ev: MouseEvent| {
+    ...
+    set_clicked_value.set(value);
+  }
+  ```
+  Notice that the closure captures variables, like `set_clicked_value`,  moved; and this is the requirement of using "signal"
+* The "user" of the "signal" is the `<div>` created the nested `view!`
+  ```
+      move || view! {
+        <div class="test-class"> {
+          let value = clicked_value.get();
+          format!("Hello, [{}]!", value)
+        } </div>
+      }
+  ```
+  Notice:
+  - the nested `view` is now a "moved" closure, since it is using the "signal" to get the new value set
+  - the value set is returned by calling `clicked_value.get()`
+  - by using the "signal", Leptos knows the closure need be called again to update the content of the nested `view!` when the "signal" is updated
+* Here is what is happen when a button is calicked
+  - The closure `on_click` gets called
+  - The "signal" gets updated when `set_clicked_value` is called
+  - The closure of the "nested" `view!` gets called when the "signal" is updated, which will update the `<div>` generated by the "nested" `view!`    
+
+
+Lets change to buttons to simulate the keys for `1 + 2 =`
+
+```
+    <button on:click=on_clicked value="1">1</button>
+    <button on:click=on_clicked value="+">+</button>
+    <button on:click=on_clicked value="2">2</button>
+    <button on:click=on_clicked value="=">=</button>
+```
+
+And also add `DumbCalculator` into the picture
+```
+...
+use std::cell::RefCell;
+use rusty_dumb_tools::calculator::*;
+...
+fn App() -> impl IntoView {
+  let calculator_ref = RefCell::new(DumbCalculator::new_full());
+  let (clicked_value, set_clicked_value) = create_signal(String::from(""));
+  let on_clicked = move |ev: MouseEvent| {
+    let value = event_target_value(&ev);
+    log!("* clicked value [{}]", value);
+    set_clicked_value.set(value);
+  };
+  view! {
+    {
+      move || view! {
+        <div class="test-class"> {
+          let mut calculator = calculator_ref.borrow_mut();
+          let value = clicked_value.get();
+          if !value.is_empty() {
+            calculator.push(value.as_str()).unwrap();
+          }
+          let result_value = calculator.get_display_sized(10);
+          format!("[{}]", result_value)
+        } </div>
+      }
+    }
+    <button on:click=on_clicked value="1">1</button>
+    <button on:click=on_clicked value="+">+</button>
+    <button on:click=on_clicked value="2">2</button>
+    <button on:click=on_clicked value="=">=</button>
+  }
+}
+```
+Notes:
+* An instance of `DumbCalculator` is created and stored in a `RefCell`, and assigned to `calculator_ref`; note that even `calculator_ref` is immutable, the instance of `DumbCalculator` can be retrieved mutable 
+  ```
+    let calculator_ref = RefCell::new(DumbCalculator::new_full());
+  ```
+  Note that since `App()` will only be called one, only a single instance of `DumbCalculator` will ever be created, unless the browser page is refreshed.
+* The "nested" `view!` code for the `<div>` is change to something like
+  ```
+    <div class="test-class"> {
+      let mut calculator = calculator_ref.borrow_mut();
+      let value = clicked_value.get();
+      if !value.is_empty() {
+        calculator.push(value.as_str()).unwrap();
+      }
+      let result_value = calculator.get_display_sized(10);
+      format!("[{}]", result_value)
+    } </div>
+  ```  
+  - The instance of `DumbCalculator` is "borrowed" mutable
+    ```
+      let mut calculator = calculator_ref.borrow_mut();
+    ```
+  - The button value, which is supposed to simulate calculator key press, is pushed to the `DumbCalculator` like
+    ```
+      calculator.push(value.as_str()).unwrap();
+    ```
+  - What the calculator display should look like is rendered in the content of the `<div>`
+    ```
+      let result_value = calculator.get_display_sized(10);
+      format!("[{}]!", result_value)
+    ```       
+
+* history
+* undo    
