@@ -52,7 +52,13 @@ leptos = { version = "0.6.5", features = ["csr"] }
 rusty_dumb_tools = {version = "0.1.7"}
 ```
 
-Add `index.html`, which is sort of the template for your final WASM 'index.html`
+Add the Trunk config file `Trunk.toml` with content like
+```
+[build]
+target = "trunk.html"
+```
+
+Add `trunk.html`, which is sort of the template for your final output `index.html`
 ```
 <!DOCTYPE html>
 <html>
@@ -61,16 +67,18 @@ Add `index.html`, which is sort of the template for your final WASM 'index.html`
 </html>
 ```
 
-Your WASM code will be "mounted" to  `<body>` of this `index.html`, lets see it working
+Note that without the above mentioned `Trunk.toml` config file, Trunk will in fact look for `index.html` as the template.
+
+Your WASM code will be "mounted" to  `<body>` of this `trunk.html`, lets see it working
 ```
 trunk serve --open
 ```
 
-This will run the Trunk server serving the `index.html` merging with whatever WASM code that is specified in `main.rs`
+This will run the Trunk server serving the `trunk.html` merging with whatever WASM code that is specified in `main.rs`
 
-The server will keep running, and hot update the page whenever `index.html` or `main.rs` changed
+The server will keep running, and hot update the page whenever `trunk.html` or `main.rs` changed
 
-Say, change `<body>` of `index.html` to 
+Say, change `<body>` of `trunk.html` to 
 ```
 	  <body><h3>&mdash; WASM Calculator &mdash;</h3></body>
 ```
@@ -144,9 +152,9 @@ fn App() -> impl IntoView {
 ```
 Why "new" `view!`? Hopefully, it will become apparent in later sections. 
 
-Lets try to put the styling as CSS. You can put your CSS in `index.html` and use it in `App()` like
+Lets try to put the styling as CSS. You can put your CSS in `trunk.html` and use it in `App()` like
 
-`index.html`
+`trunk.html`
 ```
 <!DOCTYPE html>
 <style>
