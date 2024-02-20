@@ -1,5 +1,5 @@
 
-# A Simple WASM Calculator Implemented in Rust Using Leptos, and with DumbCalculator
+# Implement a Simple WASM Calculator in Rust Using Leptos, and with DumbCalculator
 
 
 ![WASM Calculator](wasm_calculator.png)
