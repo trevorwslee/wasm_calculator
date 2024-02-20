@@ -49,7 +49,7 @@ In VSCode, open and edit `Cargo.toml` adding the necessary dependencies, like
 ...
 [dependencies]
 leptos = { version = "0.6.5", features = ["csr"] }
-rusty_dumb_tools = {version = "0.1.7"}
+rusty_dumb_tools = "0.1.7"
 ```
 
 Add the Trunk config file `Trunk.toml` with content like
@@ -270,12 +270,12 @@ Notes:
   Notice that the closure captures variables, like `set_clicked_value`,  moved; and this is the requirement of using "signal"
 * The "user" of the "signal" is the `<div>` created by the nested `view!`
   ```
-      move || view! {
-        <div class="test-class"> {
-          let value = clicked_value.get();
-          format!("Hello, [{}]!", value)
-        } </div>
-      }
+    move || view! {
+      <div class="test-class"> {
+        let value = clicked_value.get();
+        format!("Hello, [{}]!", value)
+      } </div>
+    }
   ```
   Notice:
   - the "nested" `view` is now a "moved" closure, since it is using the "signal" to get the new value set
@@ -290,10 +290,10 @@ Notes:
 Let's change the buttons to ones that simulate the key presses for `1 + 2 =`
 
 ```
-    <button on:click=on_clicked value="1">1</button>
-    <button on:click=on_clicked value="+">+</button>
-    <button on:click=on_clicked value="2">2</button>
-    <button on:click=on_clicked value="=">=</button>
+  <button on:click=on_clicked value="1">1</button>
+  <button on:click=on_clicked value="+">+</button>
+  <button on:click=on_clicked value="2">2</button>
+  <button on:click=on_clicked value="=">=</button>
 ```
 
 And also add `DumbCalculator` into the picture
@@ -504,6 +504,8 @@ Simply ... please replace the corresponding file as listed here:
 
 - `trunk.html` -- https://github.com/trevorwslee/wasm_calculator/blob/master/trunk.html
 - `main.rs` -- https://github.com/trevorwslee/wasm_calculator/blob/master/src/main.rs
+
+Or ... simply ... clone the GitHub repo https://github.com/trevorwslee/wasm_calculator 
 
 
 ## Manually Deploy to GitHub Page 
