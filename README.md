@@ -15,7 +15,7 @@ Here I will assume program development tools like
 ## Rust Crates Used
 
 * [Leptos](https://leptos.dev/) -- a Rust framework to develop WASM app in Rust
-* [DumbCalculator](https://docs.rs/rusty_dumb_tools/0.1.6/rusty_dumb_tools/calculator/struct.DumbCalculator.html) of [rusty_dumb_tools](https://github.com/trevorwslee/rusty_dumb_tools) -- a simple Rust component that acts like a simple physical calculator. 
+* [DumbCalculator](https://docs.rs/rusty_dumb_tools/0.1.7/rusty_dumb_tools/calculator/struct.DumbCalculator.html) of [rusty_dumb_tools](https://github.com/trevorwslee/rusty_dumb_tools) -- a simple Rust component that acts like a simple physical calculator. 
 
 ## Preparation for WASM Development
 
@@ -74,7 +74,7 @@ Our WASM code will be "mounted" to  `<body>` of this `trunk.html`, let's see it 
 trunk serve --open
 ```
 
-This will run the Trunk server serving the `trunk.html` merging with whatever WASM code in `main.rs`
+This will run the Trunk server serving the `trunk.html` merged with whatever WASM code in `main.rs`
 
 The server will keep running, and hot update the page whenever `trunk.html` or `main.rs` changed
 
@@ -85,7 +85,7 @@ Say, change the `<body>` of `trunk.html` to
 
 See that the browser page is changed accordingly.
 
-## The basis of `wasm_calculator` 
+## The Basis of `wasm_calculator` 
 
 The initially generated `main.rs` is actually not WASM code to be "mounted" to `<body>`.
 To "mount" some simple WASM code (written in Rust), can change `main.rs` like
