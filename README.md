@@ -68,22 +68,23 @@ Add `trunk.html`, which is sort of the template for our final output `index.html
 ```
 
 Note that without the above mentioned `Trunk.toml` config file, Trunk will in fact look for `index.html` as the template instead.
+(However, we would like to reserve `index.html` for other purposes, and hence would use `trunk.html` instead.)
 
-Our WASM code will be "mounted" to  `<body>` of this `trunk.html`, let's see it working
+Our WASM code will be "mounted" to `<body>` of this `trunk.html`, let's see it working
 ```
 trunk serve --open
 ```
 
 This will run the Trunk server serving the `trunk.html` merged with whatever WASM code in `main.rs`
 
-The server will keep running, and hot update the page whenever `trunk.html` or `main.rs` changed
+The server will keep running, and hot update the page whenever `trunk.html` or `main.rs` get changed
 
 Say, change the `<body>` of `trunk.html` to 
 ```
 <body><h3>&mdash; WASM Calculator &mdash;</h3></body>
 ```
 
-See that the browser page is changed accordingly.
+See that the browser page is updated accordingly.
 
 ## The Basis of `wasm_calculator` 
 
@@ -109,7 +110,7 @@ is "mounted" to `<body>`, after `<h3>&mdash; WASM Calculator &mdash;</h3>`
 Here is some little insights from the above code:
 - `mount_to_body` is the function provided by Leptos to "mount" WASM code (written in Rust) to `<body>`
 - `mount_to_body` can accept a closure which accepts no argument and returns the result of calling the `view!` macro, which is of cause also provided by Leptos.
-- Inside `view!`, we write "HTML" -- like `<div style="color:red">Hello, World!</div>` -- which even looks like plain HTML, is in fact valid Rust code to be pre-processed by the macro `view!`.
+- Inside `view!`, we write "HTML" -- like `<div style="color:red">Hello, World!</div>` -- which even looks like plain HTML, is in fact "legal" Rust code to be pre-processed by the macro `view!`.
 
 In fact, normally, we will be coding our WASM code, in an `App()` function, and "mount" it like
 ```
@@ -182,7 +183,7 @@ fn App() -> impl IntoView {
 
 Now, let's add two buttons to it to make it interactive.
 
-Note that Leptos will render HTML once only -- like the above `App()` will only be called once to generate initial HTML code -- any updates are triggered with "signals", and rendered with closures (more about this later).
+Note that Leptos will generate HTML once only -- like the above `App()` will only be called once to generate initial HTML code -- any updates are triggered with "signals", and rendered with closures (more about this later).
 
 Therefore, to make it interactive, not only we will need to add some interactive HTML elements, like `<button>`, we will also need to make use of "signals" as well.
 
@@ -267,7 +268,7 @@ Notes:
     set_clicked_value.set(value);
   }
   ```
-  Notice that the closure captures variables, like `set_clicked_value`,  moved; and this is the requirement of using "signal"
+  Notice that the closure captures variables, like `set_clicked_value`, moved; and this is the requirement of using "signal"
 * The "user" of the "signal" is the `<div>` created by the nested `view!`
   ```
     move || view! {
@@ -508,7 +509,7 @@ Simply ... please replace the corresponding file as listed here:
 Or ... simply ... clone the GitHub repo https://github.com/trevorwslee/wasm_calculator 
 
 
-## Manually Deploy to GitHub Page 
+## Manually Deploy to GitHub Pages
 
 Now that we have the final result WASM calculator, we may want to deployed it to GitHub Pages.
 
